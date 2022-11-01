@@ -1,0 +1,11 @@
+# ignore log folder
+log/
+src/log/
+#ignore build folder
+build/
+src/build/
+# ignore vscode folder
+.vscode/
+# ignore install folder
+install/
+src/install/
