@@ -4,7 +4,10 @@ Follow this ![link](http://docs.ros.org/en/humble/Installation/Alternatives/Ubun
 ## Installing ROS2 on Ubuntu 20.04
 Follow this ![link](http://docs.ros.org/en/humble/Installation/Alternatives/Ubuntu-Development-Setup.html) carefully and select Ubuntu 20.04 wherever it is necessary and install from source.
 ## Tutorials
-- Follow these ![tutorial](http://docs.ros.org/en/humble/Tutorials.html) to understand the basics of ROS2. If you have installed the ROS2 from source, make sure that the ros2 setup path will be your `. <installation directory>/install/setup.bash`
+- Follow these ![tutorial](http://docs.ros.org/en/humble/Tutorials.html) to understand the basics of ROS2. If you have installed the ROS2 from source, the ros2 setup path will be your 
+```
+. <installation directory>/install/setup.bash
+```
 - Source installation installs turtlesim and other packages. No need to use the commands listed in the above tutorial. 
 - `colcon` can be installed by running the command:
 ```
@@ -24,7 +27,14 @@ colcon build
 . install/setup.bash
 ros2 run cpp_pubsub talker
 ```
-- Open a new terminal, source it from `. <ros2_installation_directory>/install/setup.bash`
+- Open a new terminal, source it from 
+```
+. <ros2_installation_directory>/install/setup.bash
+```
+and source your present package installation
+```
+. install/setup.bash
+```
 - Run the subscriber
 ```
 ros2 run cpp_pubsub listner
