@@ -15,7 +15,7 @@ sudo apt install python3-colcon-common-extensions
 ```
 ## Build Package and run Publisher-Subscriber
 Follow the below instructions to build the simple publisher and subscriber package.
-- Clone this repository. It should create beginner_tutorials folder in your present working directory.
+- Clone this repository in your ROS2 Workspace /src folder. It should create beginner_tutorials folder in your /src.
 ```
 git clone https://github.com/okritvik/beginner_tutorials.git
 ```
@@ -23,9 +23,10 @@ git clone https://github.com/okritvik/beginner_tutorials.git
 ```
 cd beginner_tutorials
 rosdep install -i --from-path src --rosdistro humble -y
+cd ../.. # It should take your present working directory to <ROS2_workspace>
 colcon build
 . install/setup.bash
-ros2 run cpp_pubsub talker
+ros2 run ros2_cpp_pubsub talker
 ```
 - Open a new terminal, source it from 
 ```
@@ -37,14 +38,14 @@ and source your present package installation
 ```
 - Run the subscriber
 ```
-ros2 run cpp_pubsub listner
+ros2 run ros2_cpp_pubsub listner
 ```
 
 ## Static Code Analysis
 ### cpplint
-Run the below command from the project root folder `beginner_tutorials`
+Run the below command from inside the package folder `beginner_tutorials`
 ```
-cpplint --filter=-build/c++11,+build/c++17,-build/namespaces,-build/include_order src/cpp_pubsub/src/*.cpp
+cpplint --filter=-build/c++11,+build/c++17,-build/namespaces,-build/include_order src/*.cpp &> ./results/cpplint.txt
 ```
 ### cppcheck
 Run the below command from the project root folder `beginner_tutorials`
