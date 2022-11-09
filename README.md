@@ -19,6 +19,7 @@ Follow the below instructions to build the simple publisher and subscriber packa
 ```
 git clone https://github.com/okritvik/beginner_tutorials.git
 ```
+Make sure that your terminal is sourced
 - Run the below commands:
 ```
 cd beginner_tutorials
@@ -38,7 +39,7 @@ and source your present package installation
 ```
 - Run the subscriber
 ```
-ros2 run ros2_cpp_pubsub listner
+ros2 run ros2_cpp_pubsub listener
 ```
 
 ## Static Code Analysis
