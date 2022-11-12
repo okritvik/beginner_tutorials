@@ -1,6 +1,12 @@
 cmake_minimum_required(VERSION 3.8)
 project(ros2_cpp_pubsub)
 
+# clangd support
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+set(CMAKE_CXX_STANDARD 17)
+execute_process(COMMAND "rm" "-f" "${CMAKE_SOURCE_DIR}/compile_commands.json")
+execute_process(COMMAND "ln" "-s" "-r" "${CMAKE_BINARY_DIR}/compile_commands.json" "${CMAKE_SOURCE_DIR}/")
+
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra -Wpedantic)
 endif()
@@ -35,6 +41,11 @@ ament_target_dependencies(listener rclcpp std_msgs)
 rosidl_get_typesupport_target(cpp_typesupport_target ${PROJECT_NAME} "rosidl_typesupport_cpp")
 target_link_libraries(listener "${cpp_typesupport_target}")
 
+add_executable(server src/change_string_server.cpp)
+ament_target_dependencies(server rclcpp std_msgs)
+# TO make sure that executable files can link to service and message headers
+rosidl_get_typesupport_target(cpp_typesupport_target ${PROJECT_NAME} "rosidl_typesupport_cpp")
+target_link_libraries(server "${cpp_typesupport_target}")
 
 install(TARGETS
   talker

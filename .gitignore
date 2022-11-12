@@ -9,3 +9,4 @@ src/build/
 # ignore install folder
 install/
 src/install/
+compile_commands.json
