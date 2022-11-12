@@ -38,6 +38,7 @@ void manipulate(const REQUEST request, RESPONSE response) {
 }
 
 int main(int argc, char **argv) {
+    // RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "%d", argc);
     rclcpp::init(argc, argv);
 
     std::shared_ptr<NODE> node = NODE::make_shared("string_server");

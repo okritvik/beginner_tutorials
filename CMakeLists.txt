@@ -50,6 +50,7 @@ target_link_libraries(server "${cpp_typesupport_target}")
 install(TARGETS
   talker
   listener
+  server
   DESTINATION lib/${PROJECT_NAME})
 
 # if(BUILD_TESTING)
