@@ -23,9 +23,18 @@ rosidl_generate_interfaces(${PROJECT_NAME}
 
 add_executable(talker src/publisher_member_function.cpp)
 ament_target_dependencies(talker rclcpp std_msgs)
+rosidl_target_interfaces(talker ${PROJECT_NAME} "rosidl_typesupport_cpp")
+# TO make sure that executable files can link to service and message headers
+rosidl_get_typesupport_target(cpp_typesupport_target ${PROJECT_NAME} "rosidl_typesupport_cpp")
+target_link_libraries(talker "${cpp_typesupport_target}")
+
 
 add_executable(listener src/subscriber_member_function.cpp)
 ament_target_dependencies(listener rclcpp std_msgs)
+# TO make sure that executable files can link to service and message headers
+rosidl_get_typesupport_target(cpp_typesupport_target ${PROJECT_NAME} "rosidl_typesupport_cpp")
+target_link_libraries(listener "${cpp_typesupport_target}")
+
 
 install(TARGETS
   talker
