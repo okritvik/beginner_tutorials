@@ -18,6 +18,7 @@
 #include <string>
 
 #include "rclcpp/rclcpp.hpp"
+#include "ros2_cpp_pubsub/msg/data.hpp"
 #include "std_msgs/msg/string.hpp"
 
 using namespace std::chrono_literals;
