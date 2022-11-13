@@ -31,10 +31,10 @@ using SERVICE = ros2_cpp_pubsub::srv::ChangeString;
 
 void manipulate(const REQUEST request, RESPONSE response) {
     response->output = request->input;
-    RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Incoming request\n %s",
-                request->input.c_str());
-    RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "sending back response: [%s]",
-                response->output.c_str());
+    // RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Incoming request\n %s",
+    //             request->input.c_str());
+    // RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "sending back response:
+    // [%s, %s]", response->output.c_str(), "Modified");
 }
 
 int main(int argc, char **argv) {
