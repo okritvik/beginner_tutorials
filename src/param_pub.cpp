@@ -48,30 +48,43 @@ class MinimalPublisher : public rclcpp::Node {
     count_(0) {
         publisher_ = this->create_publisher<my_message>("chatter", 10);
         auto call_back_ptr = std::bind(&MinimalPublisher::timer_callback, this);
-        auto param = this->get_parameter("frequency");
-        auto freq = param.get_parameter_value().get<std::float_t>();
-        // Debug logger level
-        RCLCPP_DEBUG(this->get_logger(),
-                "Frequency: %f", freq);
-        // Fatal logger level
-        if (freq <= 0) {
+        auto param_desc = rcl_interfaces::msg::ParameterDescriptor();
+        param_desc.description = "Set callback frequency.";
+        this->declare_parameter("frequency", 2.0, param_desc);
+        try {
+            auto param = this->get_parameter("frequency");
+            auto freq = param.get_parameter_value().get<std::float_t>();
+            // Debug logger level
+            RCLCPP_DEBUG(this->get_logger(),
+                    "Frequency: %f", freq);
+            // Fatal logger level
+            if (freq <= 0) {
+                RCLCPP_FATAL(this->get_logger(),
+                    "Given frequency should be greater than zero!");
+            }
+            // Warning logger level
+            if (freq > 500) {
+                RCLCPP_WARN(this->get_logger(),
+                    "Your frequency of publishing is too high!");
+            }
+            param_subscriber_ =
+                    std::make_shared<rclcpp::ParameterEventHandler>(this);
+
+            auto param_callback_ptr = std::bind(&MinimalPublisher::
+                    param_callback, this, _1);
+
+            param_handle_ = param_subscriber_->add_parameter_callback(
+                        "frequency", param_callback_ptr);
+
+            auto period = std::chrono::milliseconds(static_cast<int>(
+                    (1000 / freq)));
+
+            timer_ = this->create_wall_timer(period, call_back_ptr);
+        }
+        catch (...) {
             RCLCPP_FATAL(this->get_logger(),
-                "Given frequency should be greater than zero!");
+                "Frequency not set");
         }
-        // Warning logger level
-        if (freq > 500) {
-            RCLCPP_WARN(this->get_logger(),
-                "Your frequency of publishing is too high!");
-        }
-        m_param_subscriber_ =
-                std::make_shared<rclcpp::ParameterEventHandler>(this);
-        auto param_callback_ptr = std::bind(&MinimalPublisher::param_callback,
-                this, _1);
-        m_paramHandle_ = m_param_subscriber_->add_parameter_callback(
-                    "frequency", param_callback_ptr);
-        auto period = std::chrono::milliseconds(static_cast<int>(
-                (1000 / freq)));
-        m_timer_ = this->create_wall_timer(period, topicCallbackPtr);
   }
 
  private:
@@ -93,18 +106,18 @@ class MinimalPublisher : public rclcpp::Node {
                  param.get_type_name().c_str(),
                  param.as_double());
 
-    auto period = std::chrono::milliseconds(std::static_cast<int>
+    auto period = std::chrono::milliseconds(static_cast<int>
         (1000 / param.as_double()));
     auto topic_callback_ptr = std::bind(&MinimalPublisher::timer_callback,
                             this);
-    m_timer_ = this->create_wall_timer(period, topic_callback_ptr);
+    timer_ = this->create_wall_timer(period, topic_callback_ptr);
   }
 
   rclcpp::TimerBase::SharedPtr timer_;
   rclcpp::Publisher<my_message>::SharedPtr publisher_;
   size_t count_;
-  PARAMETER_EVENT  m_param_subscriber_;
-  PARAMETER_HANDLE m_paramHandle_;
+  PARAMETER_EVENT  param_subscriber_;
+  PARAMETER_HANDLE param_handle_;
 };
 
 int main(int argc, char * argv[]) {
