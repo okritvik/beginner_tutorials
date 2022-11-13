@@ -47,10 +47,24 @@ ament_target_dependencies(server rclcpp std_msgs)
 rosidl_get_typesupport_target(cpp_typesupport_target ${PROJECT_NAME} "rosidl_typesupport_cpp")
 target_link_libraries(server "${cpp_typesupport_target}")
 
+add_executable(client_pub src/client_publisher.cpp)
+ament_target_dependencies(client_pub rclcpp std_msgs)
+# TO make sure that executable files can link to service and message headers
+rosidl_get_typesupport_target(cpp_typesupport_target ${PROJECT_NAME} "rosidl_typesupport_cpp")
+target_link_libraries(client_pub "${cpp_typesupport_target}")
+
+add_executable(client_sub src/subscriber_client_pub.cpp)
+ament_target_dependencies(client_sub rclcpp std_msgs)
+# TO make sure that executable files can link to service and message headers
+rosidl_get_typesupport_target(cpp_typesupport_target ${PROJECT_NAME} "rosidl_typesupport_cpp")
+target_link_libraries(client_sub "${cpp_typesupport_target}")
+
 install(TARGETS
   talker
   listener
   server
+  client_pub
+  client_sub
   DESTINATION lib/${PROJECT_NAME})
 
 # if(BUILD_TESTING)
