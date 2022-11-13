@@ -20,30 +20,45 @@
 #include "rclcpp/rclcpp.hpp"
 #include "ros2_cpp_pubsub/msg/data.hpp"
 #include "std_msgs/msg/string.hpp"
+#include "ros2_cpp_pubsub/srv/change_string.hpp"
 
 using namespace std::chrono_literals;
 
 /* This example creates a subclass of Node and uses std::bind() to register a
  * member function as a callback from the timer. */
 
+using my_datatype = ros2_cpp_pubsub::msg::Data;
+
+using PUBLISHER   = rclcpp::Publisher<my_datatype>::SharedPtr;
+using TIMER       = rclcpp::TimerBase::SharedPtr;
+using CLIENT    = rclcpp::Client<ros2_cpp_pubsub::srv::ChangeString>::SharedPtr;
+using SERVICE     = ros2_cpp_pubsub::srv::ChangeString;
+using REQUEST     = ros2_cpp_pubsub::srv::ChangeString::Request;
+using RESPONSE    = rclcpp::Client<SERVICE>::SharedFuture;
+using std::placeholders::_1;
+
 class MinimalPublisher : public rclcpp::Node {
  public:
-  MinimalPublisher() : Node("minimal_publisher"), count_(0) {
-    publisher_ = this->create_publisher<std_msgs::msg::String>("my_topic", 10);
-    timer_ = this->create_wall_timer(
-      500ms, std::bind(&MinimalPublisher::timer_callback, this));
+  // Constructor initializing node and counter
+  MinimalPublisher() : Node("my_publisher"), count_(0) {
+    publisher_ = this->create_publisher<my_datatype>("data", 10);
+    auto call_back_ptr = std::bind(&MinimalPublisher::timer_callback, this);
+    timer_ = this->create_wall_timer(500ms, call_back_ptr);
   }
 
  private:
   void timer_callback() {
-    auto message = std_msgs::msg::String();
-    message.data = "Hello, this pub-sub is developed by okritvik! counter: "
+    auto message = my_datatype();
+    message.my_data = "Hello, this server-pub-sub is developed by okritvik! "
         + std::to_string(count_++);
-    RCLCPP_INFO(this->get_logger(), "Publishing: '%s'", message.data.c_str());
+    RCLCPP_INFO(this->get_logger(), "Publishing: '%s'",
+                              message.my_data.c_str());
+
     publisher_->publish(message);
   }
+
   rclcpp::TimerBase::SharedPtr timer_;
-  rclcpp::Publisher<std_msgs::msg::String>::SharedPtr publisher_;
+  rclcpp::Publisher<my_datatype>::SharedPtr publisher_;
   size_t count_;
 };
 
@@ -52,4 +67,5 @@ int main(int argc, char * argv[]) {
   rclcpp::spin(std::make_shared<MinimalPublisher>());
   rclcpp::shutdown();
   return 0;
+  
 }
