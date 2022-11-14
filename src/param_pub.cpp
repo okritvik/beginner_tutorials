@@ -93,7 +93,7 @@ class MinimalPublisher : public rclcpp::Node {
     message.my_data = "Hello, this param is developed by okritvik! "
         + std::to_string(count_++);
     // Debug logger level
-    RCLCPP_INFO(this->get_logger(), "Publishing: '%s'",
+    RCLCPP_DEBUG(this->get_logger(), "Publishing: '%s'",
                               message.my_data.c_str());
 
     publisher_->publish(message);

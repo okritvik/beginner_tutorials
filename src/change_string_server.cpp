@@ -17,6 +17,7 @@
 #include "ros2_cpp_pubsub/msg/data.hpp"
 
 #include <memory>
+#include <string>
 
 using my_data = ros2_cpp_pubsub::msg::Data;
 using REQUEST = std::shared_ptr
@@ -30,7 +31,9 @@ using SERVICE = ros2_cpp_pubsub::srv::ChangeString;
 
 
 void manipulate(const REQUEST request, RESPONSE response) {
-    response->output = request->input;
+    auto input_str = static_cast<std::string>(request->input.c_str());
+    auto add_str = " Manipulated by server";
+    response->output = input_str+add_str;
     // RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Incoming request\n %s",
     //             request->input.c_str());
     // RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "sending back response:
