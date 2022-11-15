@@ -12,12 +12,24 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+/**
+ * @file change_string_server.cpp
+ * @author Kumara Ritvik Oruganti (okritvik@umd.edu)
+ * @brief A server that manipulates the string input from client
+ * @version 0.1
+ * @date 2022-11-14
+ * 
+ * @copyright Copyright (c) 2022
+ * 
+ */
 #include "rclcpp/rclcpp.hpp"
 #include "ros2_cpp_pubsub/srv/change_string.hpp"
 #include "ros2_cpp_pubsub/msg/data.hpp"
 
 #include <memory>
 #include <string>
+
+// Typedefs declared by using to improve code readability
 
 using my_data = ros2_cpp_pubsub::msg::Data;
 using REQUEST = std::shared_ptr
@@ -29,7 +41,12 @@ using NODE = rclcpp::Node;
 
 using SERVICE = ros2_cpp_pubsub::srv::ChangeString;
 
-
+/**
+ * @brief This function manipulates the input from client request
+ * 
+ * @param request Given by the client
+ * @param response Given by the server to the client
+ */
 void manipulate(const REQUEST request, RESPONSE response) {
     auto input_str = static_cast<std::string>(request->input.c_str());
     auto add_str = " Manipulated by server";
@@ -40,6 +57,13 @@ void manipulate(const REQUEST request, RESPONSE response) {
     // [%s, %s]", response->output.c_str(), "Modified");
 }
 
+/**
+ * @brief This function initializes the server with a node and service name
+ * 
+ * @param argc 
+ * @param argv 
+ * @return int 0
+ */
 int main(int argc, char **argv) {
     // RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "%d", argc);
     rclcpp::init(argc, argv);

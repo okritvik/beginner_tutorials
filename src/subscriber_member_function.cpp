@@ -12,6 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+/**
+ * @file subscriber_member_function.cpp
+ * @author Kumara Ritvik Oruganti (okritvik@umd.edu)
+ * @brief Template File to subscribe data over a topic
+ * @version 0.1
+ * @date 2022-11-14
+ * 
+ * @copyright Copyright (c) 2022
+ * 
+ */
 #include <functional>
 #include <memory>
 
@@ -23,20 +33,40 @@ using my_datatype = ros2_cpp_pubsub::msg::Data;
 
 using std::placeholders::_1;
 
+/**
+ * @brief Template class to subscribe over a topic
+ * 
+ */
 class MinimalSubscriber : public rclcpp::Node {
  public:
+ /**
+  * @brief Construct a new Minimal Subscriber object
+  * 
+  */
   MinimalSubscriber() : Node("minimal_subscriber") {
     subscription_ = this->create_subscription<my_datatype>(
       "data", 1, std::bind(&MinimalSubscriber::topic_callback, this, _1));
   }
 
  private:
+ /**
+  * @brief Call back function that gets called when there is a data published over the topic
+  * 
+  * @param msg 
+  */
   void topic_callback(const my_datatype & msg) const {
     RCLCPP_INFO(this->get_logger(), "I received: '%s'", msg.my_data.c_str());
   }
   rclcpp::Subscription<my_datatype>::SharedPtr subscription_;
 };
 
+/**
+ * @brief Main function that initializes the node
+ * 
+ * @param argc 
+ * @param argv 
+ * @return int 
+ */
 int main(int argc, char * argv[]) {
   rclcpp::init(argc, argv);
   rclcpp::spin(std::make_shared<MinimalSubscriber>());
