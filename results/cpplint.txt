@@ -1,2 +1,7 @@
-Done processing src/cpp_pubsub/src/publisher_member_function.cpp
-Done processing src/cpp_pubsub/src/subscriber_member_function.cpp
+Done processing src/change_string_server.cpp
+Done processing src/client_publisher.cpp
+Done processing src/param_pub.cpp
+Done processing src/param_sub.cpp
+Done processing src/publisher_member_function.cpp
+Done processing src/subscriber_client_pub.cpp
+Done processing src/subscriber_member_function.cpp
