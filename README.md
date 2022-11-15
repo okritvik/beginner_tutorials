@@ -53,3 +53,12 @@ Run the below command from the project root folder `beginner_tutorials`
 ```
 cppcheck --enable=all --std=c++17 src/cpp_pubsub/src/*.cpp --suppress=missingIncludeSystem --suppress=missingInclude --suppress=unmatchedSuppression > ./results/cppcheck.txt
 ```
+
+### COMMANDS to be UPDATED
+export RCUTILS_LOGGING_USE_STDOUT=0
+export RCUTILS_LOGGING_BUFFERED_STREAM=0
+ros2 launch ros2_cpp_pubsub pub_sub_launch.yaml frequency:=501.0
+ros2 launch ros2_cpp_pubsub pub_sub_launch.yaml
+ros2 run rqt_console rqt_console
+ros2 run ros2_cpp_pubsub param_talker --ros-args --log-level debug
+ros2 service call /change_strings ros2_cpp_pubsub/srv/ChangeString "{input: 'Hello world'}"
