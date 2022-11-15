@@ -73,16 +73,16 @@ class MinimalPublisher : public rclcpp::Node {
             auto param = this->get_parameter("frequency");
             auto freq = param.get_parameter_value().get<std::float_t>();
             // Debug logger level
-            RCLCPP_DEBUG(this->get_logger(),
-                    "Frequency: %f", freq);
+            RCLCPP_DEBUG_STREAM(this->get_logger(),
+                    "Frequency: " << freq);
             // Fatal logger level
             if (freq <= 0) {
-                RCLCPP_FATAL(this->get_logger(),
+                RCLCPP_FATAL_STREAM(this->get_logger(),
                     "Given frequency should be greater than zero!");
             }
             // Warning logger level
             if (freq > 500) {
-                RCLCPP_WARN(this->get_logger(),
+                RCLCPP_WARN_STREAM(this->get_logger(),
                     "Your frequency of publishing is too high!");
             }
             // Subscribe to parameter event handler and callback so
@@ -103,7 +103,7 @@ class MinimalPublisher : public rclcpp::Node {
             timer_ = this->create_wall_timer(period, call_back_ptr);
         }
         catch (...) {
-            RCLCPP_FATAL(this->get_logger(),
+            RCLCPP_FATAL_STREAM(this->get_logger(),
                 "Frequency not set");
         }
   }
@@ -118,7 +118,7 @@ class MinimalPublisher : public rclcpp::Node {
     message.my_data = "Hello, this param is developed by okritvik! "
         + std::to_string(count_++);
     // Debug logger level
-    RCLCPP_DEBUG(this->get_logger(), "Publishing: '%s'",
+    RCLCPP_DEBUG_STREAM(this->get_logger(), "Publishing: " <<
                               message.my_data.c_str());
 
     publisher_->publish(message);
@@ -129,10 +129,9 @@ class MinimalPublisher : public rclcpp::Node {
  * @param param 
  */
   void param_callback(const rclcpp::Parameter & param) {
-    RCLCPP_INFO(this->get_logger(),
-                 "Received an update to parameter \"%s\" of type %s: %.2f",
-                 param.get_name().c_str(),
-                 param.get_type_name().c_str(),
+    RCLCPP_INFO_STREAM(this->get_logger(),
+                 "Received an update to parameter " << param.get_name().c_str()
+                  << "of type "<< param.get_type_name().c_str() << " : " <<
                  param.as_double());
 
     // Update the period as per the frequency parameter
