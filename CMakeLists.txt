@@ -21,8 +21,8 @@ find_package(std_msgs REQUIRED)
 find_package(rosidl_default_generators REQUIRED)
 
 rosidl_generate_interfaces(${PROJECT_NAME}
-  "src/msg/Data.msg"
-  "src/srv/ChangeString.srv"
+  "msg/Data.msg"
+  "srv/ChangeString.srv"
   DEPENDENCIES std_msgs
 
 )
@@ -82,7 +82,7 @@ install(TARGETS
   DESTINATION lib/${PROJECT_NAME})
 
   install(DIRECTORY
-  src/launch
+  launch
   DESTINATION share/${PROJECT_NAME}/
 )
 

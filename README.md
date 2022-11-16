@@ -131,6 +131,10 @@ ros2 run rqt_console rqt_console
 export RCUTILS_LOGGING_USE_STDOUT=0
 export RCUTILS_LOGGING_BUFFERED_STREAM=0
 ```
+- To force the color coding in the terminal to view different log levels, use the below export command in the terminal
+```
+export RCUTILS_COLORIZED_OUTPUT=1  # 1 for forcing color coding
+```
 - The default logger level is INFO. To change it for a node like param_publisher (param_talker executable), run the below command:
 ```
 ros2 run ros2_cpp_pubsub param_talker --ros-args --log-level debug
