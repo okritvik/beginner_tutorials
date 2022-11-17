@@ -7,6 +7,7 @@ launch:
 - node:
     pkg: "ros2_cpp_pubsub"
     exec: "param_talker"
+    ros_args: '--log-level debug'
     # name: "sim"
     # namespace: "pub_using_param"
     param:
@@ -17,5 +18,6 @@ launch:
 - node:
     pkg: "ros2_cpp_pubsub"
     exec: "param_listener"
+    ros_args: '--log-level debug'
     # name: "sim"
     # namespace: "sub_using_param"
