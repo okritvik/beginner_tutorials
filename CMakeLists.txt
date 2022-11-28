@@ -71,6 +71,9 @@ ament_target_dependencies(param_listener rclcpp std_msgs)
 rosidl_get_typesupport_target(cpp_typesupport_target ${PROJECT_NAME} "rosidl_typesupport_cpp")
 target_link_libraries(param_listener "${cpp_typesupport_target}")
 
+add_executable(static_transform_publisher src/publisher_static_transform.cpp)
+ament_target_dependencies(static_transform_publisher geometry_msgs rclcpp std_msgs tf2 tf2_ros)
+
 install(TARGETS
   talker
   listener
