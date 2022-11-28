@@ -82,6 +82,7 @@ install(TARGETS
   client_sub
   param_talker
   param_listener
+  static_transform_publisher
   DESTINATION lib/${PROJECT_NAME})
 
   install(DIRECTORY
