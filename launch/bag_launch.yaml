@@ -1,0 +1,26 @@
+launch:
+# ROS Parameter
+- arg:
+    name: "frequency"
+    default: "1.0"
+# Publisher
+- node:
+    pkg: "ros2_cpp_pubsub"
+    exec: "param_talker"
+    ros_args: '--log-level debug'
+    # name: "sim"
+    # namespace: "pub_using_param"
+    param:
+    -
+      name: "frequency"
+      value: "$(var frequency)"
+# Subscriber
+- node:
+    pkg: "ros2_cpp_pubsub"
+    exec: "param_listener"
+    ros_args: '--log-level debug'
+    # name: "sim"
+    # namespace: "sub_using_param"
+
+- executable:
+    cmd: 'ros2 bag record -o tutorial_bag -a'
