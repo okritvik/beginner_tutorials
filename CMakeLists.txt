@@ -30,9 +30,33 @@ rosidl_generate_interfaces(${PROJECT_NAME}
 
 )
 
+if(BUILD_TESTING)
+  find_package(ament_cmake_gtest REQUIRED)
+  find_package(ament_lint_auto REQUIRED)
+
+  # the following lines skip linters
+  set(ament_cmake_cppcheck_FOUND TRUE)
+  set(ament_cmake_copyright_FOUND TRUE)
+  set(ament_cmake_cpplint_FOUND TRUE)
+  set(ament_cmake_flake8_FOUND TRUE)
+  set(ament_cmake_uncrustify_FOUND TRUE)
+  set(ament_cmake_xmllint_FOUND TRUE)
+  set(ament_cmake_lint_cmake_FOUND TRUE)
+  ament_lint_auto_find_test_dependencies()
+
+  ament_lint_auto_find_test_dependencies()
+
+  # Add gtests
+  ament_add_gtest(server_test test/test_server.cpp)
+  ament_target_dependencies(server_test rclcpp rclcpp_action std_msgs)
+  # rosidl_target_interfaces(server_test ${PROJECT_NAME} "rosidl_typesupport_cpp")
+  rosidl_get_typesupport_target(cpp_typesupport_target ${PROJECT_NAME} "rosidl_typesupport_cpp")
+  target_link_libraries(server_test "${cpp_typesupport_target}")
+endif()
+
 add_executable(talker src/publisher_member_function.cpp)
 ament_target_dependencies(talker rclcpp std_msgs)
-rosidl_target_interfaces(talker ${PROJECT_NAME} "rosidl_typesupport_cpp")
+# rosidl_target_interfaces(talker ${PROJECT_NAME} "rosidl_typesupport_cpp")
 # TO make sure that executable files can link to service and message headers
 rosidl_get_typesupport_target(cpp_typesupport_target ${PROJECT_NAME} "rosidl_typesupport_cpp")
 target_link_libraries(talker "${cpp_typesupport_target}")

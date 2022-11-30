@@ -8,14 +8,19 @@
  * @copyright Copyright (c) 2022
  * 
  */
-#include "rclcpp/rclcpp.hpp"
-#include "ros2_cpp_pubsub/srv/change_string.hpp"
-#include "ros2_cpp_pubsub/msg/data.hpp"
 
 #include <memory>
 #include <string>
+#include <chrono>
+#include <functional>
+
 #include <gtest/gtest.h>
 #include <stdlib.h>
+
+#include "rclcpp/rclcpp.hpp"
+#include "ros2_cpp_pubsub/srv/change_string.hpp"
+#include "std_msgs/msg/string.hpp"
+#include "ros2_cpp_pubsub/msg/data.hpp"
 
 // Typedefs declared by using to improve code readability
 
@@ -28,6 +33,13 @@ using RESPONSE = std::shared_ptr
 using NODE = rclcpp::Node;
 
 using SERVICE = ros2_cpp_pubsub::srv::ChangeString;
+
+using namespace std::chrono_literals;
+using my_datatype = ros2_cpp_pubsub::msg::Data;
+using std::placeholders::_1;
+using PUBLISHER   = rclcpp::Publisher<my_datatype>::SharedPtr;
+using TIMER       = rclcpp::TimerBase::SharedPtr;
+using CLIENT    = rclcpp::Client<ros2_cpp_pubsub::srv::ChangeString>::SharedPtr;
 
 /**
  * @brief This function manipulates the input from client request
@@ -53,31 +65,29 @@ TEST(TestServer, Manipulation1) {
     rclcpp::Service<SERVICE>::SharedPtr service =
                 node->create_service<SERVICE>("change_strings",  &manipulate);
 
-    RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Ready to manipulate string");
-
-    rclcpp::spin(node);
-
     // REQUEST
     // Wait for service to connect to client
     auto service_name = "change_strings";
 
     // Create a client with the service name (same as in the server)
-    auto client = create_client<SERVICE>(service_name);
+    CLIENT client = node->create_client
+                <ros2_cpp_pubsub::srv::ChangeString>(service_name);
 
     // Check if the operation is interrupted while waiting for server
     while (!client->wait_for_service(1s)) {
         if (!rclcpp::ok()) {
             // Used one of the RCLCPP LOG Level
-            RCLCPP_ERROR(this->get_logger(),
-                "Interruped while waiting for the server.");
+            // RCLCPP_ERROR(this->get_logger(),
+                // "Interruped while waiting for the server.");
 
             return;
         }
-        RCLCPP_INFO(this->get_logger(),
-                "Server not available, waiting again...");
+        // RCLCPP_INFO(this->get_logger(),
+        //         "Server not available, waiting again...");
     }
 
-    auto request = std::make_shared<REQUEST>();
+    auto request = std::make_shared
+            <ros2_cpp_pubsub::srv::ChangeString::Request>();
     request->input = "TEST";
     client->async_send_request(request,
         [](rclcpp::Client<SERVICE>::SharedFuture future) {
@@ -86,10 +96,10 @@ TEST(TestServer, Manipulation1) {
 
             // Get the data from the response
             response.my_data = future.get()->output.c_str();
-            EXPECT_TRUE(true);
+            auto req_result = "TEST Manipulated by server";
+            EXPECT_TRUE(response.my_data == req_result);
             std::cout << "DONE WITH TEST\n";
-        }
-    )
+        });
 }
 
 int main(int argc, char** argv) {
