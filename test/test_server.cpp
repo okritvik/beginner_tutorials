@@ -18,6 +18,7 @@
 #include <stdlib.h>
 
 #include "rclcpp/rclcpp.hpp"
+#include "rclcpp/exceptions.hpp"
 #include "ros2_cpp_pubsub/srv/change_string.hpp"
 #include "std_msgs/msg/string.hpp"
 #include "ros2_cpp_pubsub/msg/data.hpp"
@@ -41,6 +42,27 @@ using PUBLISHER   = rclcpp::Publisher<my_datatype>::SharedPtr;
 using TIMER       = rclcpp::TimerBase::SharedPtr;
 using CLIENT    = rclcpp::Client<ros2_cpp_pubsub::srv::ChangeString>::SharedPtr;
 
+#ifdef RMW_IMPLEMENTATION
+# define CLASSNAME_(NAME, SUFFIX) NAME ## __ ## SUFFIX
+# define CLASSNAME(NAME, SUFFIX) CLASSNAME_(NAME, SUFFIX)
+#else
+# define CLASSNAME(NAME, SUFFIX) NAME
+#endif
+
+
+class CLASSNAME(test_services_client, RMW_IMPLEMENTATION) :
+    public ::testing::Test {
+ public:
+  static void SetUpTestCase() {
+    rclcpp::init(0, nullptr);
+  }
+
+  static void TearDownTestCase() {
+    rclcpp::shutdown();
+  }
+};
+
+
 /**
  * @brief This function manipulates the input from client request
  * 
@@ -57,10 +79,14 @@ void manipulate(const REQUEST request, RESPONSE response) {
     // [%s, %s]", response->output.c_str(), "Modified");
 }
 
-TEST(TestServer, Manipulation1) {
+void topic_callback(const my_datatype & msg) {
+    std::cout << msg.my_data.c_str() << "\n\n\n\n" << std::endl;
+}
+
+TEST_F(CLASSNAME(test_services_client, RMW_IMPLEMENTATION), Manipulation1) {
     // rclcpp::init(0, nullptr);
     // SERVICE
-    std::shared_ptr<NODE> node = NODE::make_shared("string_server");
+    std::shared_ptr<NODE> node = NODE::make_shared("string_server1");
 
     rclcpp::Service<SERVICE>::SharedPtr service =
                 node->create_service<SERVICE>("change_strings",  &manipulate);
@@ -88,19 +114,75 @@ TEST(TestServer, Manipulation1) {
 
     auto request = std::make_shared
             <ros2_cpp_pubsub::srv::ChangeString::Request>();
-    request->input = "TEST";
-    client->async_send_request(request,
-        [](rclcpp::Client<SERVICE>::SharedFuture future) {
-            // Generate a response type
-            auto response = my_datatype();
+    request->input = "TEST1";
+    auto result = client->async_send_request(request);
 
-            // Get the data from the response
-            response.my_data = future.get()->output.c_str();
-            auto req_result = "TEST Manipulated by server";
-            EXPECT_TRUE(response.my_data == req_result);
-            std::cout << "DONE WITH TEST\n";
-        });
+    auto ret = rclcpp::spin_until_future_complete(node, result, 5s);
+    ASSERT_EQ(ret, rclcpp::FutureReturnCode::SUCCESS);
+    EXPECT_EQ("TEST1 Manipulated by server", result.get()->output);
+    RCLCPP_INFO(node->get_logger(), "DONE WITH TEST1\n");
 }
+
+
+TEST_F(CLASSNAME(test_services_client, RMW_IMPLEMENTATION), Manipulation2) {
+    // rclcpp::init(0, nullptr);
+    // SERVICE
+    std::shared_ptr<NODE> node = NODE::make_shared("string_server2");
+
+    rclcpp::Service<SERVICE>::SharedPtr service =
+                node->create_service<SERVICE>("change_strings",  &manipulate);
+
+    // REQUEST
+    // Wait for service to connect to client
+    auto service_name = "change_strings";
+
+    // Create a client with the service name (same as in the server)
+    CLIENT client = node->create_client
+                <ros2_cpp_pubsub::srv::ChangeString>(service_name);
+
+    // Check if the operation is interrupted while waiting for server
+    while (!client->wait_for_service(1s)) {
+        if (!rclcpp::ok()) {
+            // Used one of the RCLCPP LOG Level
+            // RCLCPP_ERROR(this->get_logger(),
+                // "Interruped while waiting for the server.");
+
+            return;
+        }
+        // RCLCPP_INFO(this->get_logger(),
+        //         "Server not available, waiting again...");
+    }
+
+    auto request = std::make_shared
+            <ros2_cpp_pubsub::srv::ChangeString::Request>();
+    request->input = "TEST2";
+    auto result = client->async_send_request(request);
+
+    auto ret = rclcpp::spin_until_future_complete(node, result, 5s);
+    ASSERT_EQ(ret, rclcpp::FutureReturnCode::SUCCESS);
+
+    EXPECT_EQ("TEST2 Manipulated by server", result.get()->output);
+    RCLCPP_INFO(node->get_logger(), "DONE WITH TEST2\n");
+}
+
+
+TEST_F(CLASSNAME(test_services_client, RMW_IMPLEMENTATION), Subscriber1) {
+    // rclcpp::init(0, nullptr);
+    // SERVICE
+    std::shared_ptr<NODE> node = NODE::make_shared("subscriber");
+
+    rclcpp::Subscription<my_datatype>::SharedPtr subscription_;
+
+    subscription_ = node->create_subscription<my_datatype>(
+      "data", 1, &topic_callback);
+
+    rclcpp::spin_some(node);
+    EXPECT_TRUE(true);
+    RCLCPP_INFO(node->get_logger(), "DONE WITH TEST3\n");
+}
+
+
+
 
 int main(int argc, char** argv) {
     rclcpp::init(argc, argv);
