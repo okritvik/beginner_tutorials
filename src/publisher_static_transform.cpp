@@ -41,7 +41,8 @@ using std::placeholders::_1;
 
 /**
  * @brief Class that publishes data to the topic /data
- * 
+ * and calculates the static transformation between the world frame and 
+ * user given child frame's pose.
  */
 class MinimalPublisher : public rclcpp::Node {
  public:
@@ -51,18 +52,23 @@ class MinimalPublisher : public rclcpp::Node {
    */
   explicit MinimalPublisher(char * transformation[])
         : Node("static_transform_publisher"), count_(0) {
+    // Create a publisher
     publisher_ = this->create_publisher<my_datatype>("data", 10);
+    // Call back pointer for publisher
     auto call_back_ptr = std::bind(&MinimalPublisher::timer_callback, this);
+    // Timer function to call the publisher after 500ms
     timer_ = this->create_wall_timer(500ms, call_back_ptr);
+    // Static Broadcaster object
     tf_static_broadcaster_ = std::make_shared
                             <tf2_ros::StaticTransformBroadcaster>(this);
+    // Make the transformation
     this->make_transforms(transformation);
   }
 
  private:
  /**
   * @brief Call back function that gets executed after every time delay
-  * 
+  * and publishes the string to /data topic
   */
   void timer_callback() {
     auto message = my_datatype();
@@ -73,9 +79,17 @@ class MinimalPublisher : public rclcpp::Node {
 
     publisher_->publish(message);
   }
+  /**
+   * @brief Calculate the transformation between the world frame
+   * and user given child frame transformation
+   * 
+   * @param transformation pose input from user
+   */
   void make_transforms(char * transformation[]) {
+    // Geometry messages transform object
     geometry_msgs::msg::TransformStamped t;
 
+    // Populate the data in the object
     t.header.stamp = this->get_clock()->now();
     t.header.frame_id = "world";
     t.child_frame_id = transformation[1];
@@ -84,6 +98,7 @@ class MinimalPublisher : public rclcpp::Node {
     t.transform.translation.y = atof(transformation[3]);
     t.transform.translation.z = atof(transformation[4]);
     tf2::Quaternion q;
+    // Calculate the quaternion
     q.setRPY(
       atof(transformation[5]),
       atof(transformation[6]),
@@ -93,6 +108,7 @@ class MinimalPublisher : public rclcpp::Node {
     t.transform.rotation.z = q.z();
     t.transform.rotation.w = q.w();
 
+    // Send the transformation to the broadcaster
     tf_static_broadcaster_->sendTransform(t);
   }
 
@@ -128,6 +144,7 @@ int main(int argc, char * argv[]) {
     RCLCPP_INFO(logger, "Your static name cannot be 'world'");
     return 1;
   }
+  // Initialize the node and spin the node to publish the data
   rclcpp::init(argc, argv);
   rclcpp::spin(std::make_shared<MinimalPublisher>(argv));
   rclcpp::shutdown();
