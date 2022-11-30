@@ -125,6 +125,59 @@ Run the below command in a new terminal
 ros2 run rqt_console rqt_console
 ```
 
+## Publish a static transform using ROS2 TF2
+- Run the static transform publisher that publishes the data to ```/data``` topic and also converts the static transformation between ```world``` frame and child frame. 
+- To run the node, use the below command
+```
+ros2 run ros2_cpp_pubsub static_transform_publisher talk 0.5 0.8 1 2 3 1
+```
+- Use the tf2_ros to output the transformation to the console.
+```
+ros2 run tf2_ros tf2_echo world talk
+```
+or
+```
+ros2 topic echo /tf_static
+```
+- To save the frames and their relation in the pdf, run the below command
+```
+ros2 run tf2_tools view_frames
+```
+
+
+## Using ROS2 Bag files to store the published data
+- A launch file is created in the ```launch``` directory that calls the publisher node, subscriber node and ros2 bag command with custom bag file name for storage. 
+- Command to launch
+```
+ros2 launch launch/bag_launch.yaml
+```
+- Run this for about 15 seconds and press ctrl+c to store the data published. 
+- To see the data stored, run the subscriber node (listener) using the command
+```
+ros2 run ros2_cpp_pubsub param_listener
+```
+and then run
+```
+ros2 bag play tutorial_bag
+```
+
+## Testing the Service and Subscriber
+- This package is provided with GTest Integration Test using Test Fixtures. 
+- After the package is built, open a terminal, source it and run
+```
+ros2 run ros2_cpp_pubsub talker
+```
+- Then run the test cases in other terminal using
+```
+colcon test --event-handlers console_direct+ --packages-select ros2_cpp_pubsub
+```
+for verbose output.
+
+- Run the below command for non verbose output:
+```
+colcon test --packages-select ros2_cpp_pubsub
+```
+
 ## Issues encountered
 - Some nodes might not output anything in the terminal. Hence, before running the executable node, please run the below two commands
 ```
@@ -139,7 +192,7 @@ export RCUTILS_COLORIZED_OUTPUT=1  # 1 for forcing color coding
 ```
 ros2 run ros2_cpp_pubsub param_talker --ros-args --log-level debug
 ```
-- I have yet to figure out using --ros-args in the YAML launch file.
+- tf2_ros initially outputs frame does not exist because it waits for the transformation to execute first. Later, when the transformation is published, the related output can be seen in console. Check the ```results/static_tf.png``` for more information.
 
 
 ## Static Code Analysis
