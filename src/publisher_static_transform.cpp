@@ -19,18 +19,60 @@
 #include "tf2/LinearMath/Quaternion.h"
 #include "tf2_ros/static_transform_broadcaster.h"
 
-class StaticFramePublisher : public rclcpp::Node {
+#include <chrono>
+#include <functional>
+#include <string>
+#include "ros2_cpp_pubsub/msg/data.hpp"
+#include "std_msgs/msg/string.hpp"
+#include "ros2_cpp_pubsub/srv/change_string.hpp"
+
+using namespace std::chrono_literals;
+
+// Typedefs declared by using to improve code readability
+using my_datatype = ros2_cpp_pubsub::msg::Data;
+
+using PUBLISHER   = rclcpp::Publisher<my_datatype>::SharedPtr;
+using TIMER       = rclcpp::TimerBase::SharedPtr;
+using CLIENT    = rclcpp::Client<ros2_cpp_pubsub::srv::ChangeString>::SharedPtr;
+using SERVICE     = ros2_cpp_pubsub::srv::ChangeString;
+using REQUEST     = ros2_cpp_pubsub::srv::ChangeString::Request;
+using RESPONSE    = rclcpp::Client<SERVICE>::SharedFuture;
+using std::placeholders::_1;
+
+/**
+ * @brief Class that publishes data to the topic /data
+ * 
+ */
+class MinimalPublisher : public rclcpp::Node {
  public:
-  explicit StaticFramePublisher(char * transformation[])
-  : Node("static_tf_publisher") {
+  /**
+   * @brief Construct a new Minimal Publisher object
+   * 
+   */
+  explicit MinimalPublisher(char * transformation[])
+        : Node("static_transform_publisher"), count_(0) {
+    publisher_ = this->create_publisher<my_datatype>("data", 10);
+    auto call_back_ptr = std::bind(&MinimalPublisher::timer_callback, this);
+    timer_ = this->create_wall_timer(500ms, call_back_ptr);
     tf_static_broadcaster_ = std::make_shared
                             <tf2_ros::StaticTransformBroadcaster>(this);
-
-    // Publish static transforms once at startup
     this->make_transforms(transformation);
   }
 
  private:
+ /**
+  * @brief Call back function that gets executed after every time delay
+  * 
+  */
+  void timer_callback() {
+    auto message = my_datatype();
+    message.my_data = "Hello, this server-pub-sub is developed by okritvik! "
+        + std::to_string(count_++);
+    RCLCPP_INFO(this->get_logger(), "Publishing: '%s'",
+                              message.my_data.c_str());
+
+    publisher_->publish(message);
+  }
   void make_transforms(char * transformation[]) {
     geometry_msgs::msg::TransformStamped t;
 
@@ -54,9 +96,20 @@ class StaticFramePublisher : public rclcpp::Node {
     tf_static_broadcaster_->sendTransform(t);
   }
 
+  // Variables
+  rclcpp::TimerBase::SharedPtr timer_;
   std::shared_ptr<tf2_ros::StaticTransformBroadcaster> tf_static_broadcaster_;
+  rclcpp::Publisher<my_datatype>::SharedPtr publisher_;
+  size_t count_;
 };
 
+/**
+ * @brief Main function that initializes the node
+ * 
+ * @param argc 
+ * @param argv 
+ * @return int 
+ */
 int main(int argc, char * argv[]) {
   auto logger = rclcpp::get_logger("logger");
 
@@ -75,10 +128,8 @@ int main(int argc, char * argv[]) {
     RCLCPP_INFO(logger, "Your static name cannot be 'world'");
     return 1;
   }
-
-  // Pass parameters and initialize node
   rclcpp::init(argc, argv);
-  rclcpp::spin(std::make_shared<StaticFramePublisher>(argv));
+  rclcpp::spin(std::make_shared<MinimalPublisher>(argv));
   rclcpp::shutdown();
   return 0;
 }
