@@ -147,10 +147,16 @@ ros2 run tf2_tools view_frames
 
 ## Using ROS2 Bag files to store the published data
 - A launch file is created in the ```launch``` directory that calls the publisher node, subscriber node and ros2 bag command with custom bag file name for storage. 
-- Command to launch
+- Command to launch with recording
 ```
-ros2 launch launch/bag_launch.yaml
+ros2 launch bag_launch_arg.py frequency:=1.0 record_flag:=True
 ```
+
+- Command to launch without recording
+```
+ros2 launch bag_launch_arg.py frequency:=1.0 record_flag:=False
+```
+
 - Run this for about 15 seconds and press ctrl+c to store the data published. 
 - To see the data stored, run the subscriber node (listener) using the command
 ```
@@ -194,6 +200,7 @@ ros2 run ros2_cpp_pubsub param_talker --ros-args --log-level debug
 ```
 - tf2_ros initially outputs frame does not exist because it waits for the transformation to execute first. Later, when the transformation is published, the related output can be seen in console. Check the ```results/static_tf.png``` for more information.
 
+- If the tutorial_bag folder already exists, then delete the folder from the workspace and rerun the recording bag file command from the above.
 
 ## Static Code Analysis
 ### cpplint
